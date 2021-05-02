@@ -10,7 +10,9 @@ def get_db():
     # The connection is stored and reused instead of creating a new connection
     # if 'get_db' is called a second time in the same request.
     # current_app is another special object that points to the Flask application handling the request.
-    if 'db' not in g: 
+    if 'db' not in g:
+        # SQLite: If concurrent requests try to write to the database at the same time,
+        # they will slow down as each write happens sequentially.
         g.db = sqlite3.connect(
             current_app.config['DATABASE'],
             detect_types=sqlite3.PARSE_DECLTYPES
@@ -20,7 +22,7 @@ def get_db():
     return g.db
 
 
-def close_db(e=None):
+def close_db():
     db = g.pop('db', None)
 
     if db is not None:
